@@ -1,0 +1,530 @@
+<!--
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+-->
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>7. CouchDB Externals API &mdash; Apache CouchDB 2.1 Documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+  
+  
+    <link rel="canonical" href="http://docs.couchdb.org/en/stable/externals.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/css/rtd_theme.css" type="text/css" />
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="about.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="Apache CouchDB 2.1 Documentation" href="index.html"/>
+        <link rel="next" title="8. Query Server" href="query-server/index.html"/>
+        <link rel="prev" title="6.2.5. Pagination Recipe" href="ddocs/views/pagination.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Apache CouchDB
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+<h2>Table of Contents</h2>
+
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro/index.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">2. Installation &amp; First-Time Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config/index.html">3. Configuring CouchDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication/index.html">4. Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="maintenance/index.html">5. CouchDB Maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ddocs/index.html">6. Design Documents</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">7. CouchDB Externals API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-new-hotness">7.1. The New Hotness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work-http-proxying">7.2. How does it work? - HTTP Proxying</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-it-work-os-daemons">7.3. How does it work? - OS Daemons</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-api">7.3.1. Configuration API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logging-api">7.3.2. Logging API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-daemons">7.3.3. Dynamic Daemons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#neat-but-so-what">7.4. Neat. But So What?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="query-server/index.html">8. Query Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fauxton/index.html">9. Fauxton</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">10. API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cluster/index.html">11. Cluster Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="json-structure.html">12. JSON Structure Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="experimental.html">13. Experimental Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">14. Contributing to this Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="whatsnew/index.html">15. Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cve/index.html">16. Security Issues Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cve/index.html#reporting-new-security-problems-with-apache-couchdb">17. Reporting New Security Problems with Apache CouchDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="about.html">18. About CouchDB Documentation</a></li>
+</ul>
+
+            
+          
+<h2>Quick Reference</h2>
+<ul>
+<li><a href="http-api.html">HTTP API Reference</a></li>
+<li><a href="config-ref.html">Configuration Reference</a></li>
+</ul>
+
+
+<h2>Local Links</h2>
+<ul>
+<li><a href="../">Fauxton</a></li>
+</ul>
+
+
+<h2>More Help</h2>
+<ul>
+<li><a href="https://couchdb.apache.org/">CouchDB Homepage</a></li>
+<li><a href="https://couchdb.apache.org/#mailing-list">Mailing Lists</a></li>
+<li><a href="http://webchat.freenode.net/?channels=couchdb">IRC</a></li>
+<li><a href="https://github.com/apache/couchdb/issues">Issue Tracker</a></li>
+<li><a href="download.html">Download Docs</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Apache CouchDB</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>7. CouchDB Externals API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/apache/couchdb-documentation/blob/master/src/externals.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="couchdb-externals-api">
+<span id="externals"></span><h1>7. CouchDB Externals API<a class="headerlink" href="#couchdb-externals-api" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Paul Joseph Davis</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Date:</th><td class="field-body">2010-09-26</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Source:</th><td class="field-body"><a class="reference external" href="http://davispj.com/2010/09/26/new-couchdb-externals-api.html">http://davispj.com/2010/09/26/new-couchdb-externals-api.html</a></td>
+</tr>
+</tbody>
+</table>
+<p>For a bit of background, CouchDB has had an API for managing <a class="reference external" href="http://wiki.apache.org/couchdb/ExternalProcesses">external OS
+processes</a> that are capable of handling HTTP requests for a given
+URL prefix. These OS processes communicate with CouchDB using JSON over
+stdio. They’re dead simple to write and provide CouchDB users an easy way to
+extend CouchDB functionality.</p>
+<p>Even though they’re dead simple to write, there are a few issues. The
+implementation in CouchDB does not provide fancy pooling semantics. The
+current API is explicitly synchronous which prevents people from writing
+event driven code in an external handler. In the end, they may be simple,
+but their simplicity is also quite limiting.</p>
+<p>During CouchCamp a few weeks ago I had multiple discussions with various people
+that wanted to see the _externals API modified in slight ways that weren’t
+mutually compatible. After having multiple discussions with multiple people
+we formed a general consensus on what a new API could look like.</p>
+<div class="section" id="the-new-hotness">
+<h2>7.1. The New Hotness<a class="headerlink" href="#the-new-hotness" title="Permalink to this headline">¶</a></h2>
+<p>So the first idea for improving the _external API was to make CouchDB act as
+a reverse proxy. This would allow people to write an HTTP server that was as
+simple or as complicated as they wanted. It will allow people to change their
+networking configuration more easily and also allow for external processes to
+be hosted on nodes other than the one running CouchDB. Bottom line, it not
+only allows us to have similar semantics as _externals, it provides a lot more
+fringe benefits as well. I’m always a fan of extra awesomeness.</p>
+<p>After hitting on the idea of adding a reverse proxy, people quickly pointed
+out that it would require users to start manually managing their external
+processes using something like <a class="reference external" href="http://smarden.org/runit/">Runit</a> or <a class="reference external" href="http://supervisord.org/">Supervisord</a>. After some
+more discussions I ran into people that wanted something like _externals that
+didn’t handle HTTP requests. After that it was easy to see that adding a second
+feature that managed OS processes was the way to go.</p>
+<p>I spent this weekend implementing both of these features. Both are at the stage
+of working but requiring more testing. In the case of the HTTP proxy I have no
+tests because I can’t decide how to test the thing. If you have ideas, I’d
+sure like to hear them.</p>
+<p><strong>[Update]</strong>: I woke up the other morning realizing that I was being an idiot
+and that Erlang is awesome. There’s no reason that I can’t have an HTTP client,
+proxy, and server all hosted in the same process. So that’s what I did. It
+turns out to be a fairly nice way of configuring matching assertions between
+the client and the server to test the proxy transmissions.</p>
+</div>
+<div class="section" id="how-does-it-work-http-proxying">
+<h2>7.2. How does it work? - HTTP Proxying<a class="headerlink" href="#how-does-it-work-http-proxying" title="Permalink to this headline">¶</a></h2>
+<p>To configure a <a class="reference internal" href="config/proxying.html#config-proxy"><span class="std std-ref">proxy handler</span></a>, edit your <cite>local.ini</cite> and
+add a section like such:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">httpd_global_handlers</span><span class="p">]</span>
+<span class="n">_fti</span> <span class="o">=</span> <span class="p">{</span><span class="n">couch_httpd_proxy</span><span class="p">,</span> <span class="n">handle_proxy_req</span><span class="p">,</span> <span class="o">&lt;&lt;</span><span class="s2">&quot;http://127.0.0.1:5985&quot;</span><span class="o">&gt;&gt;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>This would be approximately what you’d need to do to get <a class="reference external" href="https://github.com/rnewson/couchdb-lucene">CouchDB-Lucene</a>
+handled through this interface. The URL you use to access a query would be:</p>
+<blockquote>
+<div><a class="reference external" href="http://127.0.0.1:5984/_fti/db_name/_design/foo/by_content?q=hello">http://127.0.0.1:5984/_fti/db_name/_design/foo/by_content?q=hello</a></div></blockquote>
+<p>A couple things to note here. Anything in the path after the configured proxy
+name (“_fti” in this case) will be appended to the configured destination URL
+(“<a class="reference external" href="http://127.0.0.1:5985">http://127.0.0.1:5985</a>” in this case). The query string and any associated
+body will also be proxied transparently.</p>
+<p>Also, of note is that there’s nothing that limits on what resources can be
+proxied. You’re free to choose any destination that the CouchDB node is capable
+of communicating with.</p>
+</div>
+<div class="section" id="how-does-it-work-os-daemons">
+<h2>7.3. How does it work? - OS Daemons<a class="headerlink" href="#how-does-it-work-os-daemons" title="Permalink to this headline">¶</a></h2>
+<p>The second part of the new API gives CouchDB simple OS process management. When
+CouchDB boots it will start each configured OS daemon. If one of these daemons
+fails at some point, it will be restarted. If one of these daemons fails too
+often, CouchDB will stop attempting to start it.</p>
+<p>OS daemons are one-to-one. For each daemon, CouchDB will make sure that exactly
+one instance of it is alive. If you have something where you want multiple
+processes, you need to either tell CouchDB about each one, or have a main
+process that forks off the required sub-processes.</p>
+<p>To configure an <a class="reference internal" href="config/externals.html#os_daemons" title="[os_daemons]"><code class="xref config config-section docutils literal"><span class="pre">OS</span> <span class="pre">daemon</span></code></a>, add this to your
+<cite>local.ini</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">os_daemons</span><span class="p">]</span>
+<span class="n">my_daemon</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">command</span> <span class="o">-</span><span class="k">with</span> <span class="n">args</span>
+</pre></div>
+</div>
+<div class="section" id="configuration-api">
+<h3>7.3.1. Configuration API<a class="headerlink" href="#configuration-api" title="Permalink to this headline">¶</a></h3>
+<p>As an added benefit, because stdio is now free, I implemented a simple API
+that OS daemons can use to read the configuration of their CouchDB host. This
+way you can have them store their configuration inside CouchDB’s config system
+if you desire. Or they can peek at things like the
+<a class="reference internal" href="config/http.html#httpd/bind_address" title="bind_address"><code class="xref config config-option docutils literal"><span class="pre">httpd/bind_address</span></code></a> and <a class="reference internal" href="config/http.html#httpd/port" title="port"><code class="xref config config-option docutils literal"><span class="pre">httpd/port</span></code></a> that CouchDB
+is using.</p>
+<p>A request for a config section looks like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;os_daemons&quot;</span><span class="p">]</span>\<span class="n">n</span>
+</pre></div>
+</div>
+<p>And the response:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s2">&quot;my_daemon&quot;</span><span class="p">:</span> <span class="s2">&quot;/path/to/command -with args&quot;</span><span class="p">}</span>\<span class="n">n</span>
+</pre></div>
+</div>
+<p>Or to get a specific key:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;os_daemons&quot;</span><span class="p">,</span> <span class="s2">&quot;my_daemon&quot;</span><span class="p">]</span>\<span class="n">n</span>
+</pre></div>
+</div>
+<p>And the response:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s2">&quot;/path/to/command -with args&quot;</span>\<span class="n">n</span>
+</pre></div>
+</div>
+<p>All requests and responses are terminated with a newline (indicated by <code class="docutils literal"><span class="pre">\n</span></code>).</p>
+</div>
+<div class="section" id="logging-api">
+<h3>7.3.2. Logging API<a class="headerlink" href="#logging-api" title="Permalink to this headline">¶</a></h3>
+<p>There’s also an API for adding messages to CouchDB’s logs. Its simply:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>[&quot;log&quot;, $MESG]\n
+</pre></div>
+</div>
+<p>Where <code class="docutils literal"><span class="pre">$MESG</span></code> is any arbitrary JSON. There is no response from this command. As
+with the config API, the trailing <code class="docutils literal"><span class="pre">\n</span></code> represents a newline byte.</p>
+</div>
+<div class="section" id="dynamic-daemons">
+<h3>7.3.3. Dynamic Daemons<a class="headerlink" href="#dynamic-daemons" title="Permalink to this headline">¶</a></h3>
+<p>The OS daemons react in real time to changes to the configuration system. If
+you set or delete keys in the <a class="reference internal" href="config/externals.html#os_daemons" title="[os_daemons]"><code class="xref config config-section docutils literal"><span class="pre">os_daemons</span></code></a> section,
+the corresponding daemons will be started or killed as appropriate.</p>
+</div>
+</div>
+<div class="section" id="neat-but-so-what">
+<h2>7.4. Neat. But So What?<a class="headerlink" href="#neat-but-so-what" title="Permalink to this headline">¶</a></h2>
+<p>It was suggested that a good first demo would be a <a class="reference external" href="http://nodejs.org/">Node.js</a> handler. So, I
+present to you a “Hello, World” Node.js handler. Also, remember that this
+currently relies on code in my fork on <a class="reference external" href="http://github.com/davisp/couchdb/tree/new_externals">GitHub</a>.</p>
+<p>File <cite>node-hello-world.js</cite>:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;http&#39;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">sys</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;sys&#39;</span><span class="p">);</span>
+
+<span class="c1">// Send a log message to be included in CouchDB&#39;s</span>
+<span class="c1">// log files.</span>
+
+<span class="kd">var</span> <span class="nx">log</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">mesg</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">([</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="nx">mesg</span><span class="p">]));</span>
+<span class="p">}</span>
+
+<span class="c1">// The Node.js example HTTP server</span>
+
+<span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">resp</span><span class="p">.</span><span class="nx">writeHead</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">});</span>
+    <span class="nx">resp</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="s1">&#39;Hello World\n&#39;</span><span class="p">);</span>
+    <span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="nx">req</span><span class="p">.</span><span class="nx">url</span><span class="p">);</span>
+<span class="p">})</span>
+
+<span class="c1">// We use stdin in a couple ways. First, we</span>
+<span class="c1">// listen for data that will be the requested</span>
+<span class="c1">// port information. We also listen for it</span>
+<span class="c1">// to close which indicates that CouchDB has</span>
+<span class="c1">// exited and that means its time for us to</span>
+<span class="c1">// exit as well.</span>
+
+<span class="kd">var</span> <span class="nx">stdin</span> <span class="o">=</span> <span class="nx">process</span><span class="p">.</span><span class="nx">openStdin</span><span class="p">();</span>
+
+<span class="nx">stdin</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">d</span><span class="p">)));</span>
+<span class="p">});</span>
+
+<span class="nx">stdin</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Send the request for the port to listen on.</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">([</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;node_hello&quot;</span><span class="p">,</span> <span class="s2">&quot;port&quot;</span><span class="p">]));</span>
+</pre></div>
+</div>
+<p>File <cite>local.ini</cite> (Just add these to what you have):</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="k">[log]</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">info</span>
+
+<span class="k">[os_daemons]</span>
+<span class="na">node_hello</span> <span class="o">=</span> <span class="s">/path/to/node-hello-world.js</span>
+
+<span class="k">[node_hello]</span>
+<span class="na">port</span> <span class="o">=</span> <span class="s">8000</span>
+
+<span class="k">[httpd_global_handlers]</span>
+<span class="na">_hello</span> <span class="o">=</span> <span class="s">{couch_httpd_proxy, handle_proxy_req, &lt;&lt;&quot;http://127.0.0.1:8000&quot;&gt;&gt;}</span>
+</pre></div>
+</div>
+<p>And then start CouchDB and try:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ curl -v http://127.0.0.1:5984/_hello
+* About to connect<span class="o">()</span> to <span class="m">127</span>.0.0.1 port <span class="m">5984</span> <span class="o">(</span><span class="c1">#0)</span>
+*   Trying <span class="m">127</span>.0.0.1... connected
+* Connected to <span class="m">127</span>.0.0.1 <span class="o">(</span><span class="m">127</span>.0.0.1<span class="o">)</span> port <span class="m">5984</span> <span class="o">(</span><span class="c1">#0)</span>
+&gt; GET /_hello HTTP/1.1
+&gt; User-Agent: curl/7.19.7 <span class="o">(</span>universal-apple-darwin10.0<span class="o">)</span> libcurl/7.19.7 OpenSSL/0.9.8l zlib/1.2.3
+&gt; Host: <span class="m">127</span>.0.0.1:5984
+&gt; Accept: */*
+&gt;
+&lt; HTTP/1.1 <span class="m">200</span>
+&lt; Transfer-Encoding: chunked
+&lt; Server: CouchDB <span class="o">(</span>Erlang/OTP<span class="o">)</span>
+&lt; Date: Mon, <span class="m">27</span> Sep <span class="m">2010</span> <span class="m">01</span>:13:37 GMT
+&lt; Content-Type: text/plain
+&lt; Connection: keep-alive
+&lt;
+Hello World
+* Connection <span class="c1">#0 to host 127.0.0.1 left intact</span>
+* Closing connection <span class="c1">#0</span>
+</pre></div>
+</div>
+<p>The corresponding CouchDB logs look like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Apache</span> <span class="n">CouchDB</span> <span class="mf">1.5</span><span class="o">.</span><span class="mi">0</span> <span class="p">(</span><span class="n">LogLevel</span><span class="o">=</span><span class="n">info</span><span class="p">)</span> <span class="ow">is</span> <span class="n">starting</span><span class="o">.</span>
+<span class="n">Apache</span> <span class="n">CouchDB</span> <span class="n">has</span> <span class="n">started</span><span class="o">.</span> <span class="n">Time</span> <span class="n">to</span> <span class="n">relax</span><span class="o">.</span>
+<span class="p">[</span><span class="n">info</span><span class="p">]</span> <span class="p">[</span><span class="o">&lt;</span><span class="mf">0.31</span><span class="o">.</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">]</span> <span class="n">Apache</span> <span class="n">CouchDB</span> <span class="n">has</span> <span class="n">started</span> <span class="n">on</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">:</span><span class="mi">5984</span><span class="o">/</span>
+<span class="p">[</span><span class="n">info</span><span class="p">]</span> <span class="p">[</span><span class="o">&lt;</span><span class="mf">0.105</span><span class="o">.</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">]</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span> <span class="o">-</span> <span class="o">-</span> <span class="s1">&#39;GET&#39;</span> <span class="o">/</span><span class="n">_hello</span> <span class="mi">200</span>
+<span class="p">[</span><span class="n">info</span><span class="p">]</span> <span class="p">[</span><span class="o">&lt;</span><span class="mf">0.95</span><span class="o">.</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">]</span> <span class="n">Daemon</span> <span class="s2">&quot;node-hello&quot;</span> <span class="p">::</span> <span class="n">GET</span> <span class="o">/</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="query-server/index.html" class="btn btn-neutral float-right" title="8. Query Server" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ddocs/views/pagination.html" class="btn btn-neutral" title="6.2.5. Pagination Recipe" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Apache Software Foundation.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'2.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

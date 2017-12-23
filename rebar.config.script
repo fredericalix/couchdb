@@ -1,0 +1,108 @@
+% Licensed under the Apache License, Version 2.0 (the "License"); you may not
+% use this file except in compliance with the License. You may obtain a copy of
+% the License at
+%
+%   http://www.apache.org/licenses/LICENSE-2.0
+%
+% Unless required by applicable law or agreed to in writing, software
+% distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+% WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+% License for the specific language governing permissions and limitations under
+% the License.
+
+% Set the path to the configuration environment generated
+% by `./configure`.
+
+COUCHDB_ROOT = filename:dirname(SCRIPT).
+os:putenv("COUCHDB_ROOT", COUCHDB_ROOT).
+
+ConfigureEnv = filename:join(COUCHDB_ROOT, "config.erl").
+os:putenv("COUCHDB_CONFIG", ConfigureEnv).
+
+os:putenv("COUCHDB_APPS_CONFIG_DIR", filename:join([COUCHDB_ROOT, "rel/apps"])).
+
+SubDirs = [
+    %% must be compiled first as it has a custom behavior
+    "src/couch_epi",
+    "src/couch_log",
+    "src/chttpd",
+    "src/couch",
+    "src/couch_index",
+    "src/couch_mrview",
+    "src/couch_replicator",
+    "src/couch_plugins",
+    "src/couch_event",
+    "src/couch_stats",
+    "src/couch_peruser",
+    "src/couch_tests",
+    "src/ddoc_cache",
+    "src/fabric",
+    "src/global_changes",
+    "src/mango",
+    "src/mem3",
+    "src/rexi",
+    "rel"
+],
+
+DepDescs = [
+%% Independent Apps
+{config,           "config",           {tag, "1.0.1"}},
+{b64url,           "b64url",           {tag, "1.0.1"}},
+{ets_lru,          "ets-lru",          {tag, "1.0.0"}},
+{khash,            "khash",            {tag, "1.0.1"}},
+{snappy,           "snappy",           {tag, "CouchDB-1.0.0"}},
+{setup,            "setup",            {tag, "1.0.1"}},
+{ioq,              "ioq",              {tag, "1.0.1"}},
+
+%% Non-Erlang deps
+{docs,             {url, "https://github.com/apache/couchdb-documentation"},
+                   {tag, "2.1.1"}, [raw]},
+{fauxton,          {url, "https://github.com/apache/couchdb-fauxton"},
+                   {tag, "v1.1.14"}, [raw]},
+%% Third party deps
+{folsom,           "folsom",           {tag, "CouchDB-0.8.2"}},
+{ibrowse,          "ibrowse",          {tag, "CouchDB-4.0.1"}},
+{jiffy,            "jiffy",            {tag, "CouchDB-0.14.11-2"}},
+{mochiweb,         "mochiweb",         {tag, "CouchDB-2.12.0-1"}},
+{meck,             "meck",             {tag, "0.8.8"}}
+
+],
+
+
+BaseUrl = "https://github.com/apache/",
+
+MakeDep = fun
+    ({AppName, {url, Url}, Version}) ->
+        {AppName, ".*", {git, Url, Version}};
+    ({AppName, {url, Url}, Version, Options}) ->
+        {AppName, ".*", {git, Url, Version}, Options};
+    ({AppName, RepoName, Version}) ->
+        Url = BaseUrl ++ "couchdb-" ++ RepoName ++ ".git",
+        {AppName, ".*", {git, Url, Version}};
+    ({AppName, RepoName, Version, Options}) ->
+        Url = BaseUrl ++ "couchdb-" ++ RepoName ++ ".git",
+        {AppName, ".*", {git, Url, Version}, Options}
+end,
+
+AddConfig = [
+    {require_otp_vsn, "R16B03|R16B03-1|17|18|19|20"},
+    {deps_dir, "src"},
+    {deps, lists:map(MakeDep, DepDescs)},
+    {sub_dirs, SubDirs},
+    {lib_dirs, ["src"]},
+    {erl_opts, [debug_info, {i, "../"}]},
+    {eunit_opts, [verbose]},
+    {plugins, [eunit_plugin]},
+    {dialyzer, [
+        {plt_location, local},
+        {plt_location, COUCHDB_ROOT},
+        {plt_extra_apps, [
+            asn1, compiler, crypto, inets, kernel, os_mon, runtime_tools,
+            sasl, ssl, stdlib, syntax_tools, xmerl]},
+        {warnings, [unmatched_returns, error_handling, race_conditions]}]},
+    {post_hooks, [{compile, "escript support/build_js.escript"}]}
+],
+
+C = lists:foldl(fun({K, V}, CfgAcc) ->
+    lists:keystore(K, 1, CfgAcc, {K, V})
+end, CONFIG, AddConfig).

@@ -1,0 +1,18 @@
+language: python
+python:
+  - 2.7
+  - 3.4
+
+install:
+  - pip install sphinx sphinx_rtd_theme
+
+script:
+  - make ${TARGET}
+
+env:
+  matrix:
+    - TARGET=html
+    - TARGET=man
+    - TARGET=check
+
+cache: apt

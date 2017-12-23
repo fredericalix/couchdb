@@ -1,0 +1,485 @@
+<!--
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+-->
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>11.1. Set Up &mdash; Apache CouchDB 2.1 Documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+    <link rel="canonical" href="http://docs.couchdb.org/en/stable/cluster/setup.html"/>
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/rtd_theme.css" type="text/css" />
+  
+
+  
+        <link rel="author" title="About these documents"
+              href="../about.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="Apache CouchDB 2.1 Documentation" href="../index.html"/>
+        <link rel="up" title="11. Cluster Reference" href="index.html"/>
+        <link rel="next" title="11.2. Theory" href="theory.html"/>
+        <link rel="prev" title="11. Cluster Reference" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Apache CouchDB
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" />
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+<h2>Table of Contents</h2>
+
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro/index.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">2. Installation &amp; First-Time Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/index.html">3. Configuring CouchDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../replication/index.html">4. Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../maintenance/index.html">5. CouchDB Maintenance</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ddocs/index.html">6. Design Documents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../externals.html">7. CouchDB Externals API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../query-server/index.html">8. Query Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fauxton/index.html">9. Fauxton</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">10. API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">11. Cluster Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">11.1. Set Up</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#firewall">11.1.1. Firewall</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#first-time-in-erlang-time-to-play">First time in Erlang? Time to play!</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#make-couchdb-use-the-open-ports">Make CouchDB use the open ports.</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#the-cluster-setup-wizard">11.1.2. The Cluster Setup Wizard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-cluster-setup-api">11.1.3. The Cluster Setup API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="theory.html">11.2. Theory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nodes.html">11.3. Node Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="databases.html">11.4. Database Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sharding.html">11.5. Sharding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../json-structure.html">12. JSON Structure Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../experimental.html">13. Experimental Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">14. Contributing to this Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whatsnew/index.html">15. Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cve/index.html">16. Security Issues Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cve/index.html#reporting-new-security-problems-with-apache-couchdb">17. Reporting New Security Problems with Apache CouchDB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about.html">18. About CouchDB Documentation</a></li>
+</ul>
+
+            
+          
+<h2>Quick Reference</h2>
+<ul>
+<li><a href="../http-api.html">HTTP API Reference</a></li>
+<li><a href="../config-ref.html">Configuration Reference</a></li>
+</ul>
+
+
+<h2>Local Links</h2>
+<ul>
+<li><a href="../">Fauxton</a></li>
+</ul>
+
+
+<h2>More Help</h2>
+<ul>
+<li><a href="https://couchdb.apache.org/">CouchDB Homepage</a></li>
+<li><a href="https://couchdb.apache.org/#mailing-list">Mailing Lists</a></li>
+<li><a href="http://webchat.freenode.net/?channels=couchdb">IRC</a></li>
+<li><a href="https://github.com/apache/couchdb/issues">Issue Tracker</a></li>
+<li><a href="../download.html">Download Docs</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Apache CouchDB</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">11. Cluster Reference</a> &raquo;</li>
+        
+      <li>11.1. Set Up</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/apache/couchdb-documentation/blob/master/src/cluster/setup.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="set-up">
+<span id="cluster-setup"></span><h1>11.1. Set Up<a class="headerlink" href="#set-up" title="Permalink to this headline">¶</a></h1>
+<p>Everything you need to know to prepare the cluster for the installation of
+CouchDB.</p>
+<div class="section" id="firewall">
+<h2>11.1.1. Firewall<a class="headerlink" href="#firewall" title="Permalink to this headline">¶</a></h2>
+<p>If you do not have a firewall between your servers, then you can skip this.</p>
+<p>CouchDB in cluster mode uses the port <code class="docutils literal"><span class="pre">5984</span></code> just as standalone, but it also
+uses <code class="docutils literal"><span class="pre">5986</span></code> for node-local APIs.</p>
+<p>Erlang uses TCP port <code class="docutils literal"><span class="pre">4369</span></code> (EPMD) to find other nodes, so all servers must be
+able to speak to each other on this port. In an Erlang Cluster, all nodes are
+connected to all other nodes. A mesh.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If you expose the port <code class="docutils literal"><span class="pre">4369</span></code> to the Internet or any other untrusted
+network, then the only thing protecting you is the
+<a class="reference external" href="http://erlang.org/doc/reference_manual/distributed.html">cookie</a>.</p>
+</div>
+<p>Every Erlang application then uses other ports for talking to each other. Yes,
+this means random ports. This will obviously not work with a firewall, but it is
+possible to force an Erlang application to use a specific port rage.</p>
+<p>This documentation will use the range TCP <code class="docutils literal"><span class="pre">9100-9200</span></code>. Open up those ports in
+your firewalls and it is time to test it.</p>
+<p>You need 2 servers with working hostnames. Let us call them server1 and server2.</p>
+<p>On server1:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>erl -sname bus -setcookie <span class="s1">&#39;brumbrum&#39;</span> -kernel inet_dist_listen_min <span class="m">9100</span> -kernel inet_dist_listen_max <span class="m">9200</span>
+</pre></div>
+</div>
+<p>Then on server2:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>erl -sname car -setcookie <span class="s1">&#39;brumbrum&#39;</span> -kernel inet_dist_listen_min <span class="m">9100</span> -kernel inet_dist_listen_max <span class="m">9200</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>An explanation to the commands:</dt>
+<dd><ul class="first last simple">
+<li><code class="docutils literal"><span class="pre">erl</span></code> the Erlang shell.</li>
+<li><code class="docutils literal"><span class="pre">-sname</span> <span class="pre">bus</span></code> the name of the Erlang node.</li>
+<li><code class="docutils literal"><span class="pre">-setcookie</span> <span class="pre">'brumbrum'</span></code> the “password” used when nodes connect to each
+other.</li>
+<li><code class="docutils literal"><span class="pre">-kernel</span> <span class="pre">inet_dist_listen_min</span> <span class="pre">9100</span></code> the lowest port in the rage.</li>
+<li><code class="docutils literal"><span class="pre">-kernel</span> <span class="pre">inet_dist_listen_max</span> <span class="pre">9200</span></code> the highest port in the rage.</li>
+</ul>
+</dd>
+</dl>
+<p>This gives us 2 Erlang shells. shell1 on server1, shell2 on server2.
+Time to connect them. The <code class="docutils literal"><span class="pre">.</span></code> is to Erlang what <code class="docutils literal"><span class="pre">;</span></code> is to C.</p>
+<p>In shell1:</p>
+<div class="highlight-erlang"><div class="highlight"><pre><span></span><span class="nn">net_kernel</span><span class="p">:</span><span class="nf">connect_node</span><span class="p">(</span><span class="n">car</span><span class="p">@</span><span class="n">server2</span><span class="p">).</span>
+</pre></div>
+</div>
+<p>This will connect to the node called <code class="docutils literal"><span class="pre">car</span></code> on the server called <code class="docutils literal"><span class="pre">server2</span></code>.</p>
+<p>If that returns true, then you have a Erlang cluster, and the firewalls are
+open. If you get false or nothing at all, then you have a problem with the
+firewall.</p>
+<div class="section" id="first-time-in-erlang-time-to-play">
+<h3>First time in Erlang? Time to play!<a class="headerlink" href="#first-time-in-erlang-time-to-play" title="Permalink to this headline">¶</a></h3>
+<p>Run in both shells:</p>
+<div class="highlight-erlang"><div class="highlight"><pre><span></span><span class="nb">register</span><span class="p">(</span><span class="n">shell</span><span class="p">,</span> <span class="n">self</span><span class="p">()).</span>
+</pre></div>
+</div>
+<p>shell1:</p>
+<div class="highlight-erlang"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">shell</span><span class="p">,</span> <span class="n">car</span><span class="p">@</span><span class="n">server2</span><span class="p">}</span> <span class="o">!</span> <span class="p">{</span><span class="n">hello</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="n">self</span><span class="p">()}.</span>
+</pre></div>
+</div>
+<p>shell2:</p>
+<div class="highlight-erlang"><div class="highlight"><pre><span></span><span class="nf">flush</span><span class="p">().</span>
+<span class="p">{</span><span class="n">shell</span><span class="p">,</span> <span class="n">bus</span><span class="p">@</span><span class="n">server1</span><span class="p">}</span> <span class="o">!</span> <span class="p">{</span><span class="s">&quot;It speaks!&quot;</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="n">self</span><span class="p">()}.</span>
+</pre></div>
+</div>
+<p>shell1:</p>
+<div class="highlight-erlang"><div class="highlight"><pre><span></span><span class="nf">flush</span><span class="p">().</span>
+</pre></div>
+</div>
+<p>To close the shells, run in both:</p>
+<div class="highlight-erlang"><div class="highlight"><pre><span></span><span class="nf">q</span><span class="p">().</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="make-couchdb-use-the-open-ports">
+<h3>Make CouchDB use the open ports.<a class="headerlink" href="#make-couchdb-use-the-open-ports" title="Permalink to this headline">¶</a></h3>
+<p>Open <code class="docutils literal"><span class="pre">sys.config</span></code>, on all nodes, and add <code class="docutils literal"><span class="pre">inet_dist_listen_min,</span> <span class="pre">9100</span></code> and
+<code class="docutils literal"><span class="pre">inet_dist_listen_max,</span> <span class="pre">9200</span></code> like below:</p>
+<div class="highlight-erlang"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">{</span><span class="n">lager</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">{</span><span class="n">error_logger_hwm</span><span class="p">,</span> <span class="mi">1000</span><span class="p">},</span>
+        <span class="p">{</span><span class="n">error_logger_redirect</span><span class="p">,</span> <span class="n">true</span><span class="p">},</span>
+        <span class="p">{</span><span class="n">handlers</span><span class="p">,</span> <span class="p">[</span>
+            <span class="p">{</span><span class="n">lager_console_backend</span><span class="p">,</span> <span class="p">[</span><span class="n">debug</span><span class="p">,</span> <span class="p">{</span>
+                <span class="n">lager_default_formatter</span><span class="p">,</span>
+                <span class="p">[</span>
+                    <span class="n">date</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span>
+                    <span class="s">&quot; [&quot;</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="s">&quot;] &quot;</span><span class="p">,</span>
+                    <span class="nb">node</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="p">,</span> <span class="n">pid</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="p">,</span>
+                    <span class="n">message</span><span class="p">,</span>
+                    <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+                <span class="p">]</span>
+            <span class="p">}]}</span>
+        <span class="p">]},</span>
+        <span class="p">{</span><span class="n">inet_dist_listen_min</span><span class="p">,</span> <span class="mi">9100</span><span class="p">},</span>
+        <span class="p">{</span><span class="n">inet_dist_listen_max</span><span class="p">,</span> <span class="mi">9200</span><span class="p">}</span>
+    <span class="p">]}</span>
+<span class="p">].</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="the-cluster-setup-wizard">
+<span id="cluster-setup-wizard"></span><h2>11.1.2. The Cluster Setup Wizard<a class="headerlink" href="#the-cluster-setup-wizard" title="Permalink to this headline">¶</a></h2>
+<p>Setting up a cluster of Erlang applications correctly can be a daunting
+task. Luckily, CouchDB 2.0 comes with a convenient Cluster Setup Wizard
+as part of the Fauxton web administration interface.</p>
+<p>After installation and initial start-up, visit Fauxton at
+<code class="docutils literal"><span class="pre">http://127.0.0.1:5984/_utils#setup</span></code>. You will be asked to set up
+CouchDB as a single-node instance or set up a cluster.</p>
+<p>When you click “setup cluster” you are asked for admin credentials again and
+then to add nodes by IP address. To get more nodes, go through the same install
+procedure on other machines. Be sure to specify the total number of nodes you
+expect to add to the cluster before adding nodes.</p>
+<p>Before you can add nodes to form a cluster, you have to have them
+listen on a public IP address and set up an admin user. Do this, once
+per node:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>curl -X PUT http://127.0.0.1:5984/_node/couchdb@&lt;this-nodes-ip-address&gt;/_config/admins/admin -d <span class="s1">&#39;&quot;password&quot;&#39;</span>
+curl -X PUT http://127.0.0.1:5984/_node/couchdb@&lt;this-nodes-ip-address&gt;/_config/chttpd/bind_address -d <span class="s1">&#39;&quot;0.0.0.0&quot;&#39;</span>
+</pre></div>
+</div>
+<p>Now you can enter their IP addresses in the setup screen on your first
+node. And make sure to put in the admin username and password. And use
+the same admin username and password on all nodes.</p>
+<p>Once you added all nodes, click “Setup” and Fauxton will finish the
+cluster configuration for you.</p>
+<p>See <a class="reference external" href="http://127.0.0.1:5984/_membership">http://127.0.0.1:5984/_membership</a> to get a list of all the nodes in
+your cluster.</p>
+<p>Now your cluster is ready and available. You can send requests to any
+one of the nodes and get to all the data.</p>
+<p>For a proper production setup, you’d now set up an HTTP proxy in front
+of the nodes, that does load balancing. We recommend <a class="reference external" href="http://haproxy.org/">HAProxy</a>. See
+our <a class="reference external" href="https://github.com/apache/couchdb/blob/master/rel/haproxy.cfg">example configuration for HAProxy</a>. All you need is to adjust the
+ip addresses and ports.</p>
+</div>
+<div class="section" id="the-cluster-setup-api">
+<span id="cluster-setup-api"></span><h2>11.1.3. The Cluster Setup API<a class="headerlink" href="#the-cluster-setup-api" title="Permalink to this headline">¶</a></h2>
+<p>If you would prefer to manually configure your CouchDB cluster, CouchDB exposes
+the <code class="docutils literal"><span class="pre">_cluster_setup</span></code> endpoint for that. After installation and initial setup,
+we can set up the cluster. On each node we need to run the following command to
+set up the node:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> http://admin:password@127.0.0.1:5984/_cluster_setup -d <span class="s1">&#39;{&quot;action&quot;: &quot;enable_cluster&quot;, &quot;bind_address&quot;:&quot;0.0.0.0&quot;, &quot;username&quot;: &quot;admin&quot;, &quot;password&quot;:&quot;password&quot;, &quot;node_count&quot;:&quot;3&quot;}&#39;</span>
+</pre></div>
+</div>
+<p>After that we can join all the nodes together. Choose one node
+as the “setup coordination node” to run all these commands on.
+This is a “setup coordination node” that manages the setup and
+requires all other nodes to be able to see it and vice versa.
+Set up will not work with unavailable nodes.
+The notion of “setup coordination node” will be gone once the setup is finished.
+From then on, the cluster will no longer have a “setup coordination node”.
+To add a node run these two commands:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> http://admin:password@127.0.0.1:5984/_cluster_setup -d <span class="s1">&#39;{&quot;action&quot;: &quot;enable_cluster&quot;, &quot;bind_address&quot;:&quot;0.0.0.0&quot;, &quot;username&quot;: &quot;admin&quot;, &quot;password&quot;:&quot;password&quot;, &quot;port&quot;: 15984, &quot;node_count&quot;: &quot;3&quot;, &quot;remote_node&quot;: &quot;&lt;remote-node-ip&gt;&quot;, &quot;remote_current_user&quot;: &quot;&lt;remote-node-username&gt;&quot;, &quot;remote_current_password&quot;: &quot;&lt;remote-node-password&gt;&quot; }&#39;</span>
+curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> http://admin:password@127.0.0.1:5984/_cluster_setup -d <span class="s1">&#39;{&quot;action&quot;: &quot;add_node&quot;, &quot;host&quot;:&quot;&lt;remote-node-ip&gt;&quot;, &quot;port&quot;: &quot;&lt;remote-node-port&gt;&quot;, &quot;username&quot;: &quot;admin&quot;, &quot;password&quot;:&quot;password&quot;}&#39;</span>
+</pre></div>
+</div>
+<p>This will join the two nodes together.
+Keep running the above commands for each
+node you want to add to the cluster. Once this is done run the
+following command to complete the setup and add the missing databases:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> http://admin:password@127.0.0.1:5984/_cluster_setup -d <span class="s1">&#39;{&quot;action&quot;: &quot;finish_cluster&quot;}&#39;</span>
+</pre></div>
+</div>
+<p>You CouchDB cluster is now set up.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="theory.html" class="btn btn-neutral float-right" title="11.2. Theory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="11. Cluster Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Apache Software Foundation.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
